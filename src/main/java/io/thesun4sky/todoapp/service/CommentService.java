@@ -78,7 +78,7 @@ public class CommentService {
     }
 
     private void checkCommentWriter(Comment comment, UserDetailsImpl userDetails) {
-        if (!comment.getUser().getId().equals(userDetails.getUsername())) {
+        if (!comment.getUser().getId().equals(userDetails.getUser().getId())) {
             throw new CommentException("작성자가 아니므로, 접근이 제한됩니다.");
         }
     }
