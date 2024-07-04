@@ -1,6 +1,7 @@
 package io.thesun4sky.todoapp.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.thesun4sky.todoapp.dto.CommonResponseDto;
 import io.thesun4sky.todoapp.dto.LoginRequestDto;
 import io.thesun4sky.todoapp.entity.User;
 import io.thesun4sky.todoapp.repository.UserRepository;
@@ -37,7 +38,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             return getAuthenticationManager().authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            requestDto.getUserId(),
+                            requestDto.getUsername(),
                             requestDto.getPassword(),
                             null
                     )
@@ -70,9 +71,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     private void writeJsonResponse(HttpServletResponse response, HttpStatus status, String message, String data) throws IOException {
-        ResponseMessage<String> responseMessage = ResponseMessage.<String>builder()
+        CommonResponseDto<String> responseMessage = CommonResponseDto.<String>builder()
                 .statusCode(status.value())
-                .message(message)
+                .msg(message)
                 .data(data)
                 .build();
 

@@ -17,8 +17,8 @@ public class CommentResponseDto {
     private LocalDateTime modifiedAt;
 
     public CommentResponseDto(Comment comment) {
-        this.userId = comment.getUser().getUserId();
-        this.postId = comment.getTodo().getTodoId();
+        this.userId = comment.getUser().getId().toString();
+        this.postId = comment.getTodo().getId();
         this.contents = comment.getContents();
         this.createdAt = comment.getCreatedAt();
         this.modifiedAt = comment.getModifiedAt();

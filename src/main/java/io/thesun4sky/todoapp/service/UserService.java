@@ -26,12 +26,11 @@ public class UserService {
     @Transactional
     public UserResponseDto createUser(UserRequestDto requestDTO) {
         //아이디 유효성 검사
-        validateUserId(requestDTO.getUserId());
+        validateUserId(requestDTO.getUsername());
 
         //비밀번호 암호화
         String password = passwordEncoder.encode(requestDTO.getPassword());
         User user = User.builder()
-                .userId(requestDTO.getUserId())
                 .password(password)
                 .nickname(requestDTO.getNickname())
                 .username(requestDTO.getUsername())
@@ -45,7 +44,7 @@ public class UserService {
     }
 
     private void validateUserId(String id) {
-        Optional<User> findUser = userRepository.findByUserId(id);
+        Optional<User> findUser = userRepository.findByUsername(id);
         if (findUser.isPresent()) {
             throw new UserException("중복된 id 입니다.");
         }

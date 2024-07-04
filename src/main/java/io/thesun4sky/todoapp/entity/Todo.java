@@ -3,6 +3,7 @@ package io.thesun4sky.todoapp.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import io.thesun4sky.todoapp.dto.TodoRequestDTO;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,44 +15,31 @@ import lombok.NoArgsConstructor;
 @Table(name = "todo")
 public class Todo extends Timestamped{
 	@Id
-	@GeneratedValue(strategy = GenerationType.SEQUENCE)
-	@Column(name = "todo_id", nullable = false)
-	private Long todoId;
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(nullable = false)
+	private Long id;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	private User user;
 
 	private String title;
 
 	@Column(nullable = false)
 	private String content;
 
-	@Column(nullable = false)
-	private String userName;
-
-	@Column(nullable = false)
-	private String password;
-
-	@OneToMany(mappedBy = "post", orphanRemoval = true)
+	@OneToMany(mappedBy = "todo", orphanRemoval = true)
 	private List<Comment> commentList;
 
-	private LocalDateTime createdAt;
-
 	@Builder
-	public Todo(String title, String content, String userName, String password) {
+	public Todo(User user, String title, String content, String password) {
+		this.user = user;
 		this.title = title;
 		this.content = content;
-		this.userName = userName;
-		this.password = password;
-		this.createdAt = LocalDateTime.now();
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
-	}
-
-	public void setUserName(String userName) {
-		this.userName = userName;
+	public void update(TodoRequestDTO requestDto) {
+		this.title = requestDto.getTitle();
+		this.content = requestDto.getContent();
 	}
 }

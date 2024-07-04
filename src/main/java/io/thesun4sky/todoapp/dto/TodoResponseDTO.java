@@ -9,23 +9,20 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TodoResponseDTO {
+	private String username;
 
-	private Long todoId;
 	private String title;
 
 	private String content;
-
-	private String userName;
 
 	private LocalDateTime createdAt;
 
 	private LocalDateTime modifiedAt;
 
 	public TodoResponseDTO(Todo todo) {
-		this.todoId = todo.getTodoId();
+		this.username = todo.getUser().getUsername();
 		this.title = todo.getTitle();
 		this.content = todo.getContent();
-		this.userName = todo.getUserName();
 		this.createdAt = todo.getCreatedAt();
 		this.modifiedAt = todo.getModifiedAt();
 	}

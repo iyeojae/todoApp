@@ -18,9 +18,6 @@ public class User extends Timestamped{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String userId;
-
     @Column(nullable = false)
     private String nickname;
 
@@ -44,8 +41,7 @@ public class User extends Timestamped{
     private List<Todo> todoList;
 
     @Builder
-    public User(String userId, String nickname, String username, String password, UserType userType, LocalDateTime statusChangedAt) {
-        this.userId = userId;
+    public User(String nickname, String username, String password, UserType userType, LocalDateTime statusChangedAt) {
         this.nickname = nickname;
         this.username = username;
         this.password = password;

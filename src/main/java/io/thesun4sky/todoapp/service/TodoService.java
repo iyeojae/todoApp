@@ -3,7 +3,10 @@ package io.thesun4sky.todoapp.service;
 import java.util.List;
 import java.util.Objects;
 
+import io.thesun4sky.todoapp.dto.TodoResponseDTO;
 import io.thesun4sky.todoapp.exception.TodoException;
+import io.thesun4sky.todoapp.security.UserDetailsImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -11,22 +14,31 @@ import io.thesun4sky.todoapp.dto.TodoRequestDTO;
 import io.thesun4sky.todoapp.entity.Todo;
 import io.thesun4sky.todoapp.repository.TodoRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class TodoService {
 	private final TodoRepository todoRepository;
 
 	// 할일 생성
-	public Todo createTodo(TodoRequestDTO dto) {
-		var newTodo = dto.toEntity();
-		return todoRepository.save(newTodo);
+	@Transactional
+	public TodoResponseDTO createTodo(UserDetailsImpl userDetails, TodoRequestDTO request) {
+		Todo todo = Todo.builder()
+				.title(request.getTitle())
+				.content(request.getContent())
+				.user(userDetails.getUser())
+				.build();
+
+		Todo savePost = todoRepository.save(todo);
+		return new TodoResponseDTO(savePost);
 	}
 
 	// 할일 단건 조회
-	public Todo getTodo(Long todoId) {
-		return todoRepository.findById(todoId)
-			.orElseThrow(IllegalArgumentException::new);
+	public TodoResponseDTO getTodo(Long id) {
+		Todo todo = getValidateTodo(id);
+		return new TodoResponseDTO(todo);
 	}
 
 	// 할일 전체 조회
@@ -35,35 +47,37 @@ public class TodoService {
 	}
 
 	// 할일 수정
-	public Todo updateTodo(Long todoId, TodoRequestDTO dto) {
-		Todo todo = checkPWAndGetTodo(todoId, dto.getPassword());
+	@Transactional
+	public TodoResponseDTO updateTodo(Long id, UserDetailsImpl userDetails, TodoRequestDTO requestDto) {
+		Todo todo = getValidateTodo(id);
+		checkPWAndGetTodo(todo, userDetails);
 
-		todo.setTitle(dto.getTitle());
-		todo.setContent(dto.getContent());
-		todo.setUserName(dto.getUserName());
+		todo.update(requestDto);
+		todoRepository.save(todo);
 
-		return todoRepository.save(todo);
+		return new TodoResponseDTO(todo);
 	}
 
-	private Todo checkPWAndGetTodo(Long todoId, String password) {
-		Todo todo = getTodo(todoId);
-
-		// 비밀번호 체크
-		if (todo.getPassword() != null
-			&& !Objects.equals(todo.getPassword(), password)) {
-			throw new IllegalArgumentException();
+	private void checkPWAndGetTodo(Todo todo, UserDetailsImpl userDetails) {
+		if (!todo.getUser().getUsername().equals(userDetails.getUsername())) {
+			throw new TodoException("작성자가 아니므로, 접근이 제한됩니다.");
 		}
-		return todo;
 	}
 
-	public void deleteTodo(Long todoId, String password) {
-		Todo todo = checkPWAndGetTodo(todoId, password);
-
+	public void deleteTodo(Long id, UserDetailsImpl userDetails) {
+		Todo todo = getValidateTodo(id);
+		checkTodoWriter(todo, userDetails);
 		todoRepository.delete(todo);
 	}
 
-	public static Todo getValidatePost(Long id) {
+	public Todo getValidateTodo(Long id) {
 		return todoRepository.findById(id).orElseThrow(() ->
 				new TodoException("게시글이 존재하지 않습니다."));
+	}
+
+	private void checkTodoWriter(Todo todo, UserDetailsImpl userDetails) {
+		if (!todo.getUser().getUsername().equals(userDetails.getUsername())) {
+			throw new TodoException("작성자가 아니므로, 접근이 제한됩니다.");
+		}
 	}
 }
