@@ -21,8 +21,8 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<CommonResponseDto<CommentResponseDto>> createComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long postId, @Valid @RequestBody CommentRequestDto requestDto) {
-        CommentResponseDto responseDto = commentService.createComment(userDetails, postId, requestDto);
+    public ResponseEntity<CommonResponseDto<CommentResponseDto>> createComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long todoId, @Valid @RequestBody CommentRequestDto requestDto) {
+        CommentResponseDto responseDto = commentService.createComment(userDetails, todoId, requestDto);
 
         CommonResponseDto<CommentResponseDto> responseMessage = CommonResponseDto.<CommentResponseDto>builder()
                 .statusCode(HttpStatus.CREATED.value())
@@ -47,8 +47,8 @@ public class CommentController {
     }
 
     @PutMapping("/{commentId}")
-    public ResponseEntity<CommonResponseDto<CommentResponseDto>> updateComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long postId, @PathVariable Long commentId, @Valid @RequestBody CommentRequestDto requestDto) {
-        CommentResponseDto responseDto = commentService.updateComment(userDetails, postId, commentId, requestDto);
+    public ResponseEntity<CommonResponseDto<CommentResponseDto>> updateComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long todoId, @PathVariable Long commentId, @Valid @RequestBody CommentRequestDto requestDto) {
+        CommentResponseDto responseDto = commentService.updateComment(userDetails, todoId, commentId, requestDto);
 
         CommonResponseDto<CommentResponseDto> responseMessage = CommonResponseDto.<CommentResponseDto>builder()
                 .statusCode(HttpStatus.OK.value())
@@ -60,8 +60,8 @@ public class CommentController {
     }
 
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<CommonResponseDto<Long>> deleteComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long postId, @PathVariable Long commentId) {
-        commentService.deleteComment(userDetails, postId, commentId);
+    public ResponseEntity<CommonResponseDto<Long>> deleteComment(@AuthenticationPrincipal UserDetailsImpl userDetails, @PathVariable Long todoId, @PathVariable Long commentId) {
+        commentService.deleteComment(userDetails, todoId, commentId);
 
         CommonResponseDto<Long> responseMessage = CommonResponseDto.<Long>builder()
                 .statusCode(HttpStatus.OK.value())

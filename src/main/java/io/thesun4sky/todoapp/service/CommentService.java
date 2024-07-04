@@ -17,11 +17,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class CommentService {
-    private CommentRepository repository;
-    private TodoService todoService;
+    private final CommentRepository repository;
+    private final TodoService todoService;
     @Transactional
-    public CommentResponseDto createComment(UserDetailsImpl userDetails, Long postId, CommentRequestDto requestDto) {
-        Todo todo = todoService.getValidateTodo(postId);
+    public CommentResponseDto createComment(UserDetailsImpl userDetails, Long todoId, CommentRequestDto requestDto) {
+        Todo todo = todoService.getValidateTodo(todoId);
         Comment comment = Comment.builder()
                 .todo(todo)
                 .user(userDetails.getUser())
@@ -43,8 +43,8 @@ public class CommentService {
         return commentList.stream().map(CommentResponseDto::new).toList();
     }
 
-    public CommentResponseDto getComment(Long postId, Long commentId) {
-        Todo todo = todoService.getValidateTodo(postId);
+    public CommentResponseDto getComment(Long todoId, Long commentId) {
+        Todo todo = todoService.getValidateTodo(todoId);
 
         Comment comment = getValidateComment(todo.getId(), commentId);
 
@@ -52,8 +52,8 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponseDto updateComment(UserDetailsImpl userDetails, Long postId, Long commentId, CommentRequestDto requestDto) {
-        Todo todo = todoService.getValidateTodo(postId);
+    public CommentResponseDto updateComment(UserDetailsImpl userDetails, Long todoId, Long commentId, CommentRequestDto requestDto) {
+        Todo todo = todoService.getValidateTodo(todoId);
         Comment comment = getValidateComment(todo.getId(), commentId);
         checkCommentWriter(comment, userDetails);
 
@@ -64,16 +64,16 @@ public class CommentService {
     }
 
     @Transactional
-    public void deleteComment(UserDetailsImpl userDetails, Long postId, Long commentId) {
-        Todo todo = todoService.getValidateTodo(postId);
+    public void deleteComment(UserDetailsImpl userDetails, Long todoId, Long commentId) {
+        Todo todo = todoService.getValidateTodo(todoId);
         Comment comment = getValidateComment(todo.getId(), commentId);
         checkCommentWriter(comment, userDetails);
 
         repository.delete(comment);
     }
 
-    public Comment getValidateComment(Long postId, Long commentId) {
-        return repository.findByTodoIdAndId(postId, commentId).orElseThrow(() ->
+    public Comment getValidateComment(Long todoId, Long commentId) {
+        return repository.findByTodoIdAndId(todoId, commentId).orElseThrow(() ->
                 new CommentException("게시글에 해당 댓글이 존재하지 않습니다."));
     }
 
